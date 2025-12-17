@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  dq-dashboard:
+    image: dq-dashboard-dev:latest   # ✅ build 대신 image 이름
+    build:
+      context: .                     # 최초 1회 빌드용
+    container_name: dq-dashboard
+    restart: always
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app:cached                # ✅ 코드 변경 자동 반영
+      - /Users/benjamin/PycharmProjects/airflow/data:/opt/airflow/data:ro   # ✅ Airflow 데이터 공유
+    environment:
+      STREAMLIT_SERVER_PORT: 8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+    command: >
+      bash -c "streamlit run app.py
+      --server.port=8501
+      --server.address=0.0.0.0
+      --server.fileWatcherType=auto"
+    networks:
+      - airflow_default
