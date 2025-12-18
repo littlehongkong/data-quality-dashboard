@@ -12,6 +12,9 @@ from services.comparison_service import build_layer_dod_compare
 from utils.dates import get_prev_business_day
 from utils.styles import status_style, diff_style, mc_status_style
 
+from services.coverage_service import find_asset_without_price
+from services.coverage_service import find_price_without_asset
+
 
 def render_warehouse_tab(trd_dt: str, lake_status_map: dict):
     st.subheader("📦 Warehouse Coverage")
@@ -84,3 +87,52 @@ def render_warehouse_tab(trd_dt: str, lake_status_map: dict):
         .format({"diff_pct": "{:.2f}%"}),
         use_container_width=True,
     )
+
+    # =========================================================
+    # 🔎 Asset vs Price Diff – Drill-down List
+    # =========================================================
+    with st.expander("🔎 Asset vs Price Diff Detail"):
+        st.caption("Asset / Price 간 전일 대비 건수 차이가 발생한 상세 목록")
+
+        # ---------------------------------------------
+        # Asset은 있으나 Price가 없는 경우
+        # ---------------------------------------------
+
+        try:
+            df_asset_only = find_asset_without_price(trd_dt=trd_dt)
+
+            st.markdown(f"### ❗ Asset은 있으나 Price가 없는 종목 : {df_asset_only.shape[0]}건")
+
+            if df_asset_only.empty:
+                st.success("차이 없음")
+            else:
+                st.dataframe(
+                    df_asset_only,
+                    use_container_width=True,
+                )
+
+        except Exception as e:
+            st.error(f"Asset > Price 조회 중 오류 발생: {e}")
+
+        st.divider()
+
+        # ---------------------------------------------
+        # Price는 있으나 Asset이 없는 경우
+        # ---------------------------------------------
+
+        try:
+
+            df_price_only = find_price_without_asset(trd_dt=trd_dt)
+
+            st.markdown(f"### ❗ Price는 있으나 Asset이 없는 종목 : {df_price_only.shape[0]}건")
+
+            if df_price_only.empty:
+                st.success("차이 없음")
+            else:
+                st.dataframe(
+                    df_price_only,
+                    use_container_width=True,
+                )
+
+        except Exception as e:
+            st.error(f"Price > Asset 조회 중 오류 발생: {e}")
