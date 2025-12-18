@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-IMAGE_NAME="data-monistoring"
-CONTAINER_NAME="data-monistoring"
+IMAGE_NAME="data-monitoring"
+CONTAINER_NAME="data-monitoring"
 PORT=8501
 
 export AWS_PROFILE=prod   # 또는 IAM Role
